@@ -21,7 +21,7 @@ const deprecate = require('depd')('kraken-js/middleware/404');
 
 module.exports = deprecate.function(function fileNotFound(template) {
 
-    return function fileNotFound(req, res, next) {
+    return function fileNotFound(req, res) {
         const model = { url: req.url, statusCode: 404 };
 
         if (req.xhr) {

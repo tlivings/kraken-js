@@ -22,7 +22,7 @@ const debug = require('util').debuglog('kraken-js/middleware/500');
 
 module.exports = deprecate.function(function serverError(template) {
 
-    return function serverError(err, req, res, next) {
+    return function serverError(err, req, res) {
         debug('Server Error:', err.stack);
 
         const model = { url: req.url, err: err, statusCode: 500 };

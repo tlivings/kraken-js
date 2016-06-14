@@ -18,7 +18,6 @@
 'use strict';
 
 const domain = require('domain');
-const thing = require('core-util-is');
 
 const States = {
     CONNECTED: 0,
