@@ -17,11 +17,11 @@
  \*───────────────────────────────────────────────────────────────────────────*/
 'use strict';
 
-var path = require('path');
-var caller = require('caller');
-var express = require('express');
-var bootstrap = require('./lib/bootstrap');
-var debug = require('debuglog')('kraken');
+const path = require('path');
+const caller = require('caller');
+const express = require('express');
+const bootstrap = require('./lib/bootstrap');
+const debug = require('util').debuglog('kraken');
 
 
 function noop(obj, cb) {
@@ -29,14 +29,12 @@ function noop(obj, cb) {
 }
 
 
-module.exports = function (options) {
-    var app;
+module.exports = function (options = {}) {
 
     if (typeof options === 'string') {
         options = { basedir: options };
     }
 
-    options = options || {};
     options.protocols    = options.protocols || {};
     options.onconfig     = options.onconfig || noop;
     options.basedir      = options.basedir || path.dirname(caller());
@@ -45,10 +43,9 @@ module.exports = function (options) {
 
     debug('kraken options\n', options);
 
-    app = express();
-    app.once('mount', function onmount(parent) {
-        var start, error, promise;
+    const app = express();
 
+    app.once('mount', function onmount(parent) {
         // Remove sacrificial express app
         parent._router.stack.pop();
 
@@ -57,19 +54,19 @@ module.exports = function (options) {
         // moved to `options` for use later.
         options.mountpath = app.mountpath;
 
-        start = parent.emit.bind(parent, 'start');
-        error = parent.emit.bind(parent, 'error');
+        const start = parent.emit.bind(parent, 'start');
+        const error = parent.emit.bind(parent, 'error');
 
         // Kick off server and add middleware which will block until
         // server is ready. This way we don't have to block standard
         // `listen` behavior, but failures will occur immediately.
-        promise = bootstrap(parent, options);
+        const promise = bootstrap(parent, options);
+
         promise.then(start, error);
 
-
         parent.use(function startup(req, res, next) {
-            var headers = options.startupHeaders;
-            
+            const headers = options.startupHeaders;
+
             if (promise.isPending()) {
                 res.status(503);
                 if (headers) {

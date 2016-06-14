@@ -52,7 +52,7 @@
     }
   ],
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=6.0.0"
   },
   "devDependencies": {
     "consolidate": "^0.12.1",
@@ -79,6 +79,7 @@
     "debuglog": "^1.0.1",
     "depd": "^1.0.1",
     "endgame": "^1.0.0",
+    "entries": "^1.0.1",
     "express-enrouten": "^1.2.0",
     "express-session": "^1.10.4",
     "formidable": "^1.0.17",

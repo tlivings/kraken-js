@@ -17,14 +17,13 @@
  \*───────────────────────────────────────────────────────────────────────────*/
 'use strict';
 
-var deprecate = require('depd')('kraken-js/middleware/404');
-
+const deprecate = require('depd')('kraken-js/middleware/404');
 
 module.exports = deprecate.function(function fileNotFound(template) {
 
     return function fileNotFound(req, res, next) {
-        var model = { url: req.url, statusCode: 404 };
-        
+        const model = { url: req.url, statusCode: 404 };
+
         if (req.xhr) {
             res.status(404).send(model);
         } else {

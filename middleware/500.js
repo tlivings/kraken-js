@@ -17,15 +17,15 @@
  \*───────────────────────────────────────────────────────────────────────────*/
 'use strict';
 
-var deprecate = require('depd')('kraken-js/middleware/500');
-var debug = require('debuglog')('kraken-js/middleware/500');
-
+const deprecate = require('depd')('kraken-js/middleware/500');
+const debug = require('util').debuglog('kraken-js/middleware/500');
 
 module.exports = deprecate.function(function serverError(template) {
 
     return function serverError(err, req, res, next) {
         debug('Server Error:', err.stack);
-        var model = { url: req.url, err: err, statusCode: 500 };
+
+        const model = { url: req.url, err: err, statusCode: 500 };
 
         if (req.xhr) {
             res.status(500).send(model);
@@ -34,5 +34,5 @@ module.exports = deprecate.function(function serverError(template) {
             res.render(template, model);
         }
     };
-    
+
 }, 'see github.com/krakenjs/kraken-js/issues/359');

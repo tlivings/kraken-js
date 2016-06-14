@@ -17,9 +17,10 @@
  \*───────────────────────────────────────────────────────────────────────────*/
 'use strict';
 
-var fs = require('fs'),
-    IncomingForm = require('formidable').IncomingForm,
-    debug = require('debuglog')('kraken/middleware/multipart');
+const fs = require('fs');
+const IncomingForm = require('formidable').IncomingForm;
+const entries = require('entries');
+const debug = require('util').debuglog('kraken/middleware/multipart');
 
 
 /**
@@ -29,7 +30,7 @@ var fs = require('fs'),
  */
 function filter(fn) {
     return function multipart(req, res, next) {
-        var contentType = req.headers['content-type'];
+        const  contentType = req.headers['content-type'];
         if (typeof contentType === 'string' && ~contentType.indexOf('multipart/form-data')) {
             debug('received multipart request');
             fn.apply(null, arguments);
@@ -46,9 +47,9 @@ function filter(fn) {
  * @param callback the callback to invoke, with the signature `callback(value, key, obj)`
  */
 function forEachValue(obj, callback) {
-    Object.keys(obj).forEach(function (item) {
-        callback(obj[item], item, obj);
-    });
+    for (const [item, value] of entries(obj)) {
+        callback(value, item, obj);
+    }
 }
 
 
@@ -67,10 +68,10 @@ function cleanify(files) {
  * @param file a formidable File object
  */
 function funlink(file) {
-    var path = file.path;
+    const path = file.path;
     debug('removing', file.name);
     if (typeof path === 'string') {
-        fs.unlink(path, function (err) {
+        fs.unlink(path, (err) => {
             if (err) {
                 debug('Failed to remove ' + path);
                 debug(err);
@@ -80,12 +81,11 @@ function funlink(file) {
 }
 
 
-module.exports = function (config) {
-    config = config || {};
+module.exports = function (config = {}) {
 
-    return filter(function (req, res, next) {
-        var form = new IncomingForm(config);
-        form.parse(req, function (err, fields, files) {
+    return filter((req, res, next) => {
+        const form = new IncomingForm(config);
+        form.parse(req, (err, fields, files) => {
             if (err) {
                 next(err);
                 return;

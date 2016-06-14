@@ -17,17 +17,17 @@
  \*───────────────────────────────────────────────────────────────────────────*/
 'use strict';
 
-var domain = require('domain');
-var thing = require('core-util-is');
+const domain = require('domain');
+const thing = require('core-util-is');
 
-var States = {
+const States = {
     CONNECTED: 0,
     DISCONNECTING: 2
 };
 
 
 function onceThunk() {
-  var called = false;
+  let called = false;
   return function once(emitter, events, callback) {
     function call() {
       if (!called) {
@@ -35,32 +35,28 @@ function onceThunk() {
         return callback.apply(this, arguments);
       }
     }
-    events.forEach(function (event) {
+    events.forEach((event) => {
       emitter.once(event, call);
     });
   };
 }
 
-module.exports = function (config) {
-    var template, timeout, state, app, server, once, uncaughtException;
+module.exports = function (config = {}) {
+    let app = undefined;
+    let server = undefined;
 
     function close() {
         state = States.DISCONNECTING;
         app.emit('shutdown', server, timeout);
     }
 
-    config = config || {};
-    template = config.template;
-    timeout = config.timeout || 10 * 1000;
-    state = States.CONNECTED;
-    uncaughtException = thing.isFunction(config.uncaughtException) && config.uncaughtException;
+    const { template, timeout = 10 * 1000, uncaughtException, shutdownHeaders = {} } = config;
 
-    once = onceThunk();
+    let state = States.CONNECTED;
+
+    const once = onceThunk();
 
     return function shutdown(req, res, next) {
-        var headers, d;
-
-        headers = config.shutdownHeaders || {};
 
         function json() {
             res.send({message: 'Server is shutting down.'});
@@ -71,7 +67,10 @@ module.exports = function (config) {
         }
 
         if (state === States.DISCONNECTING) {
-            headers.Connection = headers.Connection || 'close';
+            const headers = Object.assign({
+                Connection: 'close'
+            }, shutdownHeaders);
+
             res.header(headers);
             res.status(503);
             res.format({
@@ -90,16 +89,16 @@ module.exports = function (config) {
             once(process, ['SIGTERM', 'SIGINT'], close);
         }
 
-        d = domain.create();
+        const d = domain.create();
 
         d.add(req);
         d.add(res);
 
-        d.run(function () {
+        d.run(() => {
             next();
         });
 
-        d.once('error', function (error) {
+        d.once('error', (error) => {
             if (uncaughtException) {
                 uncaughtException(error, req, res, next);
                 return;
