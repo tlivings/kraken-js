@@ -2,33 +2,27 @@
 
 process.env.NODE_ENV='_krakendev';
 
-var test = require('tape');
-var path = require('path');
-var express = require('express');
-var request = require('supertest');
-var kraken = require('../');
+const test = require('tape');
+const path = require('path');
+const express = require('express');
+const request = require('supertest');
+const kraken = require('../');
 
+test('views', (t) => {
 
-test('views', function (t) {
-
-
-    t.test('renderer', function (t) {
-        var basedir, app;
-
+    t.test('renderer', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        basedir = path.join(__dirname, 'fixtures', 'views');
+        const basedir = path.join(__dirname, 'fixtures', 'views');
 
-        app = express();
+        const app = express();
         app.use(kraken(basedir));
         app.on('start', start);
         app.on('error', t.error.bind(t));
@@ -36,29 +30,25 @@ test('views', function (t) {
     });
 
 
-    t.test('renderer with consolidate', function (t) {
-        var options, app;
-
+    t.test('renderer with consolidate', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'views'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:view engine', 'ejs');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));
@@ -66,29 +56,25 @@ test('views', function (t) {
     });
 
 
-    t.test('alt renderer with consolidate', function (t) {
-        var options, app;
-
+    t.test('alt renderer with consolidate', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'views'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:view engine', 'jade');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));
@@ -96,29 +82,25 @@ test('views', function (t) {
     });
 
 
-    t.test('configured renderer function', function (t) {
-        var options, app;
-
+    t.test('configured renderer function', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'views'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:view engine', 'dust');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));
@@ -126,29 +108,25 @@ test('views', function (t) {
     });
 
 
-    t.test('configured renderer factory function', function (t) {
-        var options, app;
-
+    t.test('configured renderer factory function', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'views'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:view engine', 'htmlx');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));
@@ -156,116 +134,100 @@ test('views', function (t) {
     });
 
 
-    t.test('configured renderer exported function', function (t) {
-        var options, app;
-
+    t.test('configured renderer exported function', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'views'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:view engine', 'dustx');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));
     });
 
 
-    t.test('custom view implementation', function (t) {
-        var options, app;
-
+    t.test('custom view implementation', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'views'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:view engine', 'custom');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));
     });
 
 
-    t.test('built-in shim', function (t) {
-        var options, app;
-
+    t.test('built-in shim', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'views'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:view engine', 'jsp');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));
     });
 
 
-    t.test('built-in shim with precompiled templates', function (t) {
-        var options, app;
-
+    t.test('built-in shim with precompiled templates', (t) => {
         function start() {
-            var server;
-
             function done(err) {
                 t.error(err);
                 t.end();
             }
 
-            server = request(app).get('/').expect(200, 'Hello, world!', done);
+            const server = request(app).get('/').expect(200, 'Hello, world!', done);
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'views'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:view engine', 'class');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));

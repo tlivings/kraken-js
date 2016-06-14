@@ -10,15 +10,14 @@ var request = require('supertest');
 var kraken = require('../');
 
 
-test('settings', function (t) {
+test('settings', (t) => {
 
-    t.test('custom', function (t) {
-        var options, app;
+    t.test('custom', (t) => {
 
         function start() {
-            var foo = app.kraken.get('foo'),
-                click = app.kraken.get('click'),
-                custom = app.kraken.get('custom');
+            const foo = app.kraken.get('foo');
+            const click = app.kraken.get('click');
+            const custom = app.kraken.get('custom');
             t.equal(foo, 'baz');
             t.equal(click, 'clack');
             t.equal(custom, 'Hello, world!');
@@ -26,46 +25,43 @@ test('settings', function (t) {
             t.end();
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'settings'),
             protocols: {
-                custom: function (value) {
+                custom(value) {
                     return util.format('Hello, %s!', value);
                 }
             }
         };
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', t.error.bind(t));
         app.use(kraken(options));
     });
 
 
-    t.test('should resolve from config (shortstop-resolve)', function (t) {
-      var options, app, basedir;
-
-      basedir = path.join(__dirname, 'fixtures', 'settings');
+    t.test('should resolve from config (shortstop-resolve)', (t) => {
+      const basedir = path.join(__dirname, 'fixtures', 'settings');
 
       function onconfig(config, cb) {
-        var faviconPath = config.get('middleware:favicon:module:arguments')[0];
+        const faviconPath = config.get('middleware:favicon:module:arguments')[0];
         t.equal(faviconPath, path.join(basedir, 'node_modules', 'favicon', 'icon.ico'));
         t.end();
       }
 
-      app = express();
+      const app = express();
       app.use(kraken({
-        basedir: basedir,
-        onconfig: onconfig
+        basedir,
+        onconfig
       }));
     });
 
 
-    t.test('should not clobber `trust proxy fn`', function (t) {
+    t.test('should not clobber `trust proxy fn`', (t) => {
         // bug introduced by:
         // visionmedia/express@566720
         // expressjs/proxy-addr@7a7a7e
-        var options, app;
 
         function start() {
             request(app)
@@ -76,15 +72,15 @@ test('settings', function (t) {
                 });
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'settings'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:trust proxy', false);
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken(options));
         app.on('start', start);
         app.on('error', t.error.bind(t));

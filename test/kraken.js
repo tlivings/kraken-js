@@ -2,18 +2,15 @@
 
 process.env.NODE_ENV='_krakendev';
 
-var test = require('tape');
-var path = require('path');
-var express = require('express');
-var request = require('supertest');
-var kraken = require('../');
+const test = require('tape');
+const path = require('path');
+const express = require('express');
+const request = require('supertest');
+const kraken = require('../');
 
+test('kraken', (t) => {
 
-test('kraken', function (t) {
-
-    t.test('startup without options', function (t) {
-        var app;
-
+    t.test('startup without options', (t) => {
         t.plan(1);
 
         function start() {
@@ -24,16 +21,14 @@ test('kraken', function (t) {
             t.error(err, 'server startup failed');
         }
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken());
     });
 
 
-    t.test('startup with basedir', function (t) {
-        var app;
-
+    t.test('startup with basedir', (t) => {
         t.plan(1);
 
         function start() {
@@ -44,16 +39,14 @@ test('kraken', function (t) {
             t.error(err, 'server startup failed');
         }
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken(__dirname));
     });
 
 
-    t.test('startup with options', function (t) {
-        var app;
-
+    t.test('startup with options', (t) => {
         t.plan(1);
 
         function start() {
@@ -64,21 +57,19 @@ test('kraken', function (t) {
             t.error(err, 'server startup failed');
         }
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken({ basedir: __dirname }));
     });
 
 
-    t.test('mount point', function (t) {
-        var options, app, server;
-
+    t.test('mount point', (t) => {
         t.plan(2);
 
         function start() {
             t.pass('server started');
-            server = request(app).get('/foo/').expect(200, 'ok', function (err) {
+            const server = request(app).get('/foo/').expect(200, 'ok', (err) => {
                 t.error(err);
                 t.end();
             });
@@ -89,25 +80,23 @@ test('kraken', function (t) {
             t.end();
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'mount')
         };
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use('/foo', kraken(options));
     });
 
 
-    t.test('express route', function (t) {
-        var options, app, server;
-
+    t.test('express route', (t) => {
         t.plan(2);
 
         function start() {
             t.pass('server started');
-            server = request(app).get('/foo/').expect(200, 'ok', function (err) {
+            const server = request(app).get('/foo/').expect(200, 'ok', (err) => {
                 t.error(err);
                 t.end();
             });
@@ -118,24 +107,22 @@ test('kraken', function (t) {
             t.end();
         }
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'mount'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('express:mountpath', '/foo');
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken(options));
     });
 
 
-    t.test('startup delay', function (t) {
-        var options, app;
-
+    t.test('startup delay', (t) => {
         t.plan(1);
 
         function start() {
@@ -148,27 +135,27 @@ test('kraken', function (t) {
             t.end();
         }
 
-        options = {
-            onconfig: function (settings, cb) {
+        const options = {
+            onconfig(settings, cb) {
                 setTimeout(cb.bind(null, null, settings), 1000);
             }
         };
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken(options));
     });
 
 
-    t.test('server 503 until started', function (t) {
-        var options, app, server;
-
+    t.test('server 503 until started', (t) => {
         t.plan(3);
+
+        let server = undefined;
 
         function start() {
             t.pass('server started');
-            server = request(app).get('/').expect(404, function (err) {
+            server = request(app).get('/').expect(404, (err) => {
                 t.error(err, 'server is accepting requests');
                 t.end();
             });
@@ -179,30 +166,30 @@ test('kraken', function (t) {
             t.end();
         }
 
-        options = {
-            onconfig: function (settings, cb) {
+        const options = {
+            onconfig(settings, cb) {
                 setTimeout(cb.bind(null, null, settings), 1000);
             }
         };
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken(options));
 
-        server = request(app).get('/').expect(503, function (err) {
+        server = request(app).get('/').expect(503, (err) => {
             t.error(err, 'server starting');
         });
     });
 
-    t.test('server 503 until started with custom headers', function (t) {
-        var options, app, server;
-
+    t.test('server 503 until started with custom headers', (t) => {
         t.plan(3);
+
+        let server = undefined;
 
         function start() {
             t.pass('server started');
-            server = request(app).get('/').expect(404, function (err) {
+            server = request(app).get('/').expect(404, (err) => {
                 t.error(err, 'server is accepting requests');
                 t.end();
             });
@@ -213,8 +200,8 @@ test('kraken', function (t) {
             t.end();
         }
 
-        options = {
-            onconfig: function (settings, cb) {
+        const options = {
+            onconfig(settings, cb) {
                 setTimeout(cb.bind(null, null, settings), 1000);
             },
             startupHeaders: {
@@ -223,7 +210,7 @@ test('kraken', function (t) {
             }
         };
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken(options));
@@ -231,15 +218,13 @@ test('kraken', function (t) {
         server = request(app).get('/')
             .expect('Custom-Header1', "Header1")
             .expect('Custom-Header2', "Header2")
-            .expect(503, function (err) {
+            .expect(503, (err) => {
                 t.error(err, 'server starting');
             });
     });
 
 
-    t.test('startup error', function (t) {
-        var options, app;
-
+    t.test('startup error', (t) => {
         t.plan(3);
 
         function start() {
@@ -249,36 +234,34 @@ test('kraken', function (t) {
 
         function error(err) {
             t.ok(err, 'server startup failed');
-            request(app).get('/').expect(503, 'The application failed to start.', function (err) {
+            request(app).get('/').expect(503, 'The application failed to start.', (err) => {
                 t.error(err, 'server is accepting requests');
                 t.end();
             });
         }
 
-        options = {
-            onconfig: function (settings, cb) {
+        const options = {
+            onconfig(settings, cb) {
                 setTimeout(cb.bind(null, new Error('fail')), 1000);
             }
         };
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken(options));
 
-        request(app).get('/').expect(503, 'Server is starting.', function (err) {
+        request(app).get('/').expect(503, 'Server is starting.', (err) => {
             t.error(err, 'server starting');
         });
     });
 
 
-    t.test('shutdown', function (t) {
-        var exit, expected, app, server;
+    t.test('shutdown', (t) => {
+        const exit = process.exit;
+        let expected = 0;
 
-        exit = process.exit;
-        expected = 0;
-
-        process.exit = function (code) {
+        process.exit = (code) => {
             t.equals(code, expected, 'correct exit code');
             expected += 1;
 
@@ -288,13 +271,13 @@ test('kraken', function (t) {
             }
         };
 
-        app = express();
+        const app = express();
         app.use(kraken({ basedir: __dirname }));
-        app.on('start', function () {
+        app.on('start', () => {
             app.emit('shutdown', server, 1000);
         });
 
-        app.on('stop', function () {
+        app.on('stop', () => {
             // Will fire twice because we never
             // really exit the process
             t.ok(1, 'server stopped');
@@ -305,24 +288,22 @@ test('kraken', function (t) {
         //
         // See https://nodejs.org/api/net.html#net_server_listen_port_host_backlog_callback
         // for more information
-        server = app.listen(0);
+        const server = app.listen(0);
         server.timeout = 0;
     });
 
-    t.test('shutdown headers', function (t) {
-        var app, server;
-
+    t.test('shutdown headers', (t) => {
         process.removeAllListeners('SIGTERM');
 
-        app = express();
+        const app = express();
         app.use(kraken({ basedir: __dirname }));
 
-        app.on('start', function () {
+        app.on('start', () => {
 
             app.removeAllListeners('shutdown');
 
-            app.once('shutdown', function () {
-                request(app).get('/').end(function (error, response) {
+            app.once('shutdown', () => {
+                request(app).get('/').end((error, response) => {
                     t.error(error);
                     t.equals(response.statusCode, 503, 'correct status code.');
                     t.ok(response.header['custom-header1'], 'has custom header 1.');
@@ -332,7 +313,7 @@ test('kraken', function (t) {
             });
 
             //need one request
-            request(app).get('/').end(function (error, response) {
+            request(app).get('/').end((error, response) => {
                 t.error(error);
                 t.equals(response.statusCode, 404, 'correct status code.');
 
@@ -341,20 +322,18 @@ test('kraken', function (t) {
         });
     });
 
-    t.test('shutdown on uncaught', function (t) {
-        var app, server;
-
+    t.test('shutdown on uncaught', (t) => {
         process.removeAllListeners('SIGTERM');
 
-        app = express();
+        const app = express();
         app.use(kraken({ basedir: path.join(__dirname, 'fixtures', 'middleware') }));
 
-        app.on('start', function () {
+        app.on('start', () => {
 
             app.removeAllListeners('shutdown');
 
-            app.once('shutdown', function () {
-                request(app).get('/').end(function (error, response) {
+            app.once('shutdown', () => {
+                request(app).get('/').end((error, response) => {
                     t.error(error);
                     t.equals(response.statusCode, 503, 'correct status code.');
                     t.end();
@@ -362,29 +341,27 @@ test('kraken', function (t) {
             });
 
             //need one request
-            request(app).get('/uncaught').end(function (error, response) {
+            request(app).get('/uncaught').end((error, response) => {
                 t.error(error);
                 t.equals(response.statusCode, 500, 'correct status code.');
             });
         });
     });
 
-    t.test('override shutdown on uncaught', function (t) {
-        var app, server;
-
+    t.test('override shutdown on uncaught', (t) => {
         process.removeAllListeners('SIGTERM');
 
-        app = express();
+        const app = express();
         app.use(kraken({
             basedir: path.join(__dirname, 'fixtures', 'middleware'),
-            onconfig: function (config, next) {
+            onconfig(config, next) {
                 config.set('middleware:shutdown:module:arguments', [
                     {
-                        "uncaughtException": function (error, req, res, next) {
+                        uncaughtException: function (error, req, res, next) {
                             next(error);
 
-                            setImmediate(function () {
-                                request(app).get('/').end(function (error, response) {
+                            setImmediate(() => {
+                                request(app).get('/').end((error, response) => {
                                     t.error(error);
                                     t.equals(response.statusCode, 404, 'correct status code.');
                                     t.end();
@@ -397,34 +374,31 @@ test('kraken', function (t) {
             }
         }));
 
-        app.on('start', function () {
+        app.on('start', () => {
             //need one request
-            request(app).get('/uncaught').end(function (error, response) {
+            request(app).get('/uncaught').end((error, response) => {
                 t.error(error);
                 t.equals(response.statusCode, 500, 'correct status code.');
             });
         });
     });
 
-    t.test('shutdown should only emit once, ever', function (t) {
-        var app;
-
+    t.test('shutdown should only emit once, ever', (t) => {
         process.removeAllListeners('SIGINT');
 
-        app = express();
+        const app = express();
         app.use(kraken({ basedir: __dirname }));
 
-
-        app.on('start', function () {
+        app.on('start', () => {
             app.removeAllListeners('shutdown');
 
-            request(app).get('/').end(function (error, response) {
+            request(app).get('/').end((error, response) => {
                 t.ok(!error, 'no error.');
                 t.equals(response.statusCode, 404, 'correct status code.');
-                app.once('shutdown', function () {
+                app.once('shutdown', () => {
                     t.pass('shutdown emitted once.');
-                    process.nextTick(function () {
-                      app.once('shutdown', function () {
+                    process.nextTick(() => {
+                      app.once('shutdown', () => {
                         t.fail('shutdown emitted multiple times.');
                       });
                       process.emit('SIGINT');

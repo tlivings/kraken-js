@@ -2,30 +2,27 @@
 
 process.env.NODE_ENV='_krakendev';
 
-var test = require('tape');
-var path = require('path');
-var express = require('express');
-var request = require('supertest');
-var kraken = require('../');
+const test = require('tape');
+const path = require('path');
+const express = require('express');
+const request = require('supertest');
+const kraken = require('../');
 
 
-test('composition', function (t) {
+test('composition', (t) => {
 
-    var SETTINGS = [ 'x-powered-by', 'etag', 'env', 'query parser', 'subdomain offset', 'trust proxy',
+    const SETTINGS = [ 'x-powered-by', 'etag', 'env', 'query parser', 'subdomain offset', 'trust proxy',
                      'jsonp callback name', 'case sensitive routing', 'strict routing', 'query parser fn'];
 
-    t.test('plugin', function (t) {
-        var args, options, parent;
-
-        args = {
-            onstart: function onstart() {
-                var child;
-
-                child = this;
+    t.test('plugin', (t) => {
+        const args = {
+            onstart() {
+                const child = this;
 
                 // Compare settings to ensure they are inherited correctly.
                 t.notEqual(child.get('views'), parent.get('views'));
                 t.notEqual(child.kraken.get('express:views'), parent.kraken.get('express:views'));
+
                 SETTINGS.forEach(function (name) {
                     t.equal(child.get(name), parent.get(name), 'Expected \'' + name + '\' to be equal.');
                 });
@@ -41,9 +38,9 @@ test('composition', function (t) {
             onmount: Function.prototype
         };
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'settings'),
-            onconfig: function (config, next) {
+            onconfig(config, next) {
                 config.set('middleware:plugin', {
                     enabled: true,
                     priority: 119,
@@ -56,20 +53,16 @@ test('composition', function (t) {
             }
         };
 
-        parent = express();
+        const parent = express();
         parent.use(kraken(options));
         parent.on('error', t.error.bind(t));
     });
 
 
-    t.test('plugin with mountpath', function (t) {
-        var args, options, parent;
-
-        args = {
-            onstart: function onstart() {
-                var child;
-
-                child = this;
+    t.test('plugin with mountpath', (t) => {
+        const args = {
+            onstart() {
+                const child = this;
 
                 // Compare settings to ensure they are inherited correctly.
                 t.notEqual(child.get('views'), parent.get('views'));
@@ -89,7 +82,7 @@ test('composition', function (t) {
             onmount: Function.prototype
         };
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'settings'),
             onconfig: function (config, next) {
                 config.set('middleware:plugin', {
@@ -105,20 +98,16 @@ test('composition', function (t) {
             }
         };
 
-        parent = express();
+        const parent = express();
         parent.use(kraken(options));
         parent.on('error', t.error.bind(t));
     });
 
 
-    t.test('inherited views', function (t) {
-        var args, options, parent;
-
-        args = {
-            onstart: function onstart() {
-                var child;
-
-                child = this;
+    t.test('inherited views', (t) => {
+        const args = {
+            onstart() {
+                const child = this;
 
                 // Compare settings to ensure they are inherited correctly.
                 t.equal(child.get('views'), parent.get('views'));
@@ -139,9 +128,9 @@ test('composition', function (t) {
             inheritViews: true
         };
 
-        options = {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'settings'),
-            onconfig: function (config, next) {
+            onconfig(config, next) {
                 config.set('middleware:plugin', {
                     enabled: true,
                     priority: 119,
@@ -155,17 +144,17 @@ test('composition', function (t) {
             }
         };
 
-        parent = express();
+        const parent = express();
         parent.use(kraken(options));
         parent.on('error', t.error.bind(t));
     });
 
 
     t.test('late mounting', function () {
-        var args, factory, parent;
+        let parent = undefined;
 
-        args = {
-            onstart: function onstart() {
+        const args = {
+            onstart() {
 
                 // After the child has started, mount the application and make requests.
                 parent = express();
@@ -179,7 +168,7 @@ test('composition', function (t) {
                         t.end();
                     });
             },
-            onmount: function (parent) {
+            onmount(parent) {
                 // Compare settings to ensure they are inherited correctly.
                 // Not checking all settings because child kraken app intentionally
                 // overrides some settings by default.
@@ -188,7 +177,7 @@ test('composition', function (t) {
             }
         };
 
-        factory = require('./fixtures/settings/lib/plugin');
+        const factory = require('./fixtures/settings/lib/plugin');
         factory(args);
     });
 

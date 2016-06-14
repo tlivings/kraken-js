@@ -2,50 +2,43 @@
 
 process.env.NODE_ENV='_krakendev';
 
-var test = require('tape');
-var path = require('path');
-var express = require('express');
-var request = require('supertest');
-var kraken = require('../');
+const test = require('tape');
+const path = require('path');
+const express = require('express');
+const request = require('supertest');
+const kraken = require('../');
 
+test('middleware', (t) => {
 
-test('middleware', function (t) {
-
-    t.test('no config', function (t) {
-        var options, app;
-
-        options = {
+    t.test('no config', (t) => {
+        const options = {
             basedir: path.join(__dirname, 'fixtures', 'middleware'),
-            onconfig: function (settings, cb) {
+            onconfig(settings, cb) {
                 settings.set('middleware', null);
                 cb(null, settings);
             }
         };
 
-        app = express();
+        const app = express();
         app.on('start', t.end.bind(t));
         app.on('error', t.error.bind(t));
         app.use(kraken(options));
     });
 
 
-    t.test('multipart', function (t) {
-        var basedir, app, file, server;
-
+    t.test('multipart', (t) => {
         t.plan(8);
 
         function start() {
-            var file;
-
             t.pass('server started');
 
-            file = path.join(__dirname, 'fixtures', 'middleware', 'public', 'img', 'lazerz.jpg');
-            server = request(app).post('/').attach('file', file).expect(200, function (err) {
+            const file = path.join(__dirname, 'fixtures', 'middleware', 'public', 'img', 'lazerz.jpg');
+            let server = request(app).post('/').attach('file', file).expect(200, (err) => {
                 // support for multipart requests
                 t.error(err, 'server is accepting requests');
 
                 // trololol
-                server = request(app).get('/').expect(200, function (err) {
+                server = request(app).get('/').expect(200, (err) => {
                     // support for non-multipart requests
                     t.error(err);
                     t.end();
@@ -58,19 +51,19 @@ test('middleware', function (t) {
             t.end();
         }
 
-        basedir = path.join(__dirname, 'fixtures', 'middleware');
+        const basedir = path.join(__dirname, 'fixtures', 'middleware');
 
-        app = express();
+        const app = express();
         app.on('start', start);
         app.on('error', error);
         app.use(kraken({
             basedir: basedir,
-            onconfig: function (config, done) {
+            onconfig(config, done) {
                 done(null, config);
             }
         }));
 
-        app.on('middleware:before:router', function (eventargs) {
+        app.on('middleware:before:router', (eventargs) => {
 
             eventargs.app.get('/', function standard(req, res) {
                 res.status(200).end();
